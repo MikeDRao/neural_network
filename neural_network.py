@@ -31,7 +31,7 @@ def create_int(dataset, column):
     unique = set(class_val)
     lookup = dict()
     for i, value in enumerate(unique):
-        lookup[value] = i
+        lookup[value] = int(value)
     for row in dataset:
         row[column] = lookup[row[column]]
     return lookup
@@ -41,9 +41,11 @@ def abs_max(dataset):
     max_ret = 0
     minmax = list()
     for row in dataset:
-        max_val = abs(max(row, key=abs))
-        if max_val > max_ret:
-            max_ret = max_val
+        val = 0
+        for i in range(len(row) - 1 ):
+            val = abs(row[i])
+            if val > max_ret:
+                max_ret = val
     return max_ret
 
 # Divide all values by abs max
@@ -113,7 +115,6 @@ def backward_propagate_error(network, expected):
         for j in range(len(layer)):
             neuron = layer[j]
             neuron['delta'] = errors[j] * transfer_derivative(neuron['output'])
-        #print(errors)
 
 # Update network weights with error
 def update_weights(network, row, l_rate):
@@ -163,13 +164,13 @@ def neural_network():
         create_floats(test_file,i)
     absolute_max = abs_max(test_file)
     normalize_attributes(test_file,absolute_max)
-    
-    
+
     n_outputs = lookup[max(lookup)] + 1
     n_inputs = len(training_file[0]) - 1
+
     network = initialze_network(num_layer,unit_per_layer,n_outputs,n_inputs)
-    train_network(network, training_file, 1, 2, n_outputs)
-    
+
+    train_network(network, training_file, 1, rounds, n_outputs)
     predictions = list()
     tot_acc = 0
     for row in range(len(test_file)):
